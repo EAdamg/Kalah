@@ -1,0 +1,68 @@
+#board {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 6fr 1fr;
+}
+
+#pits {
+    width: 100%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+#kalah1, #kalah2 {
+    width: 100%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.pit {
+    height: 70px;
+    width: 60px;
+    background: rgb(47, 89, 173);
+    font-size: 48px;
+    font-style: oblique;
+    color: #FFF;
+    text-align: center;
+    margin-top: 20px;
+    margin-left: 5px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.pit:hover {
+    cursor: pointer;
+}
+
+.kalah {
+    height: 140px;
+    width: 60px;
+    background: rgb(246, 37, 31);
+    font-size: 48px;
+    font-style: oblique;
+    color: #FFF;
+    text-align: center;
+    margin-top: 20px;
+    margin-left: 5px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.kalah:hover {
+    cursor: pointer;
+}
+
+td {
+    text-align: center;
+    border: 3px solid red;
+}
+
+#input {
+    margin: auto;
+    width: 50%;
+
+}
