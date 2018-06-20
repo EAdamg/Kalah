@@ -22,7 +22,7 @@ public class Game {
         this.finished = false;
     }
 
-    public GameStatus makeMove(int pitId) throws InvalidPitIdException, EmptyPitException, InvalidPitForPlayerException {
+    public synchronized GameStatus makeMove(int pitId) throws InvalidPitIdException, EmptyPitException, InvalidPitForPlayerException {
         if (pitId < 1 || pitId > 14) {
             throw new InvalidPitIdException(pitId);
         }
@@ -59,7 +59,7 @@ public class Game {
         return new GameStatus(this.currentPlayer, false, this.board.getBoardStatus());
     }
 
-    public GameStatus makeAiMove() throws EmptyPitException, InvalidPitForPlayerException, InvalidPitIdException {
+    public synchronized GameStatus makeAiMove() throws EmptyPitException, InvalidPitForPlayerException, InvalidPitIdException {
         int pitToPlay = monteCarlo.makeMove(this.currentPlayer, this.board);
         if (Player.PLAYER2 == this.currentPlayer) {
             pitToPlay += 7;

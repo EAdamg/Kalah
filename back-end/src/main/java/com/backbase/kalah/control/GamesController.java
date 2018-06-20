@@ -1,8 +1,8 @@
 package com.backbase.kalah.control;
 
+import com.backbase.kalah.exceptions.*;
 import com.backbase.kalah.game.Game;
 import com.backbase.kalah.game.GameStatus;
-import com.backbase.kalah.exceptions.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,9 +15,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.springframework.http.HttpStatus.*;
 
@@ -26,17 +26,26 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping("/games")
 public class GamesController {
 
+    @Autowired
     private HttpServletRequest request;
 
-    private final Map<UUID, Game> gamesMap = new HashMap<>();
+    private final Map<UUID, Game> gamesMap = new ConcurrentHashMap<>();
 
     @CrossOrigin
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<?> createGame(@RequestBody GameCreationRequest gameCreationRequest) {
+    public ResponseEntity<?> createGame(@RequestBody GameCreationRequest gameCreationRequest) throws InvalidNumberOfPitsException, InvalidDifficultyException {
+        int numStonesPerPit = gameCreationRequest.getNumStonesPerPit();
+        int difficulty = gameCreationRequest.getDifficulty();
+        if (numStonesPerPit < 3 || numStonesPerPit > 6) {
+            throw new InvalidNumberOfPitsException(numStonesPerPit);
+        }
+        if (difficulty < 1 || difficulty > 3) {
+            throw new InvalidDifficultyException(difficulty);
+        }
         UUID uuid = UUID.randomUUID();
         StringBuffer requestURL = request.getRequestURL();
         requestURL.append("/").append(uuid.toString());
-        this.gamesMap.put(uuid, new Game(gameCreationRequest.getNumStonesPerPit(), gameCreationRequest.getDifficulty()));
+        this.gamesMap.put(uuid, new Game(numStonesPerPit, gameCreationRequest.getDifficulty()));
         return new ResponseEntity<>(new GameCreationResponse(uuid.toString(), requestURL.toString()), HttpStatus.OK);
     }
 
@@ -72,10 +81,6 @@ public class GamesController {
         boolean win = gameStatus.isWinner();
         String message = win ? String.format("%s has won!!", gameStatus.getPlayer().getName()) : String.format("It is now %s's turn", gameStatus.getPlayer().getName());
         return new ResponseEntity<>(new GameMoveResponse(id, request.getRequestURL().toString(), gameStatus.getBoardStatus(), message, !win ? gameStatus.getPlayer().getName() : null), HttpStatus.OK);
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(GamesController.class, args);
     }
 
     @ControllerAdvice
@@ -117,8 +122,4 @@ public class GamesController {
 
     }
 
-    @Autowired
-    public void setRequest(HttpServletRequest request) {
-        this.request = request;
-    }
 }
